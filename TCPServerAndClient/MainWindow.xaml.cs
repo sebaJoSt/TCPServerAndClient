@@ -86,9 +86,6 @@ namespace TCPServer
 
         private async void SendMessageButton_Click(object sender, RoutedEventArgs e)
         {
-
-
-
             try
             {
                 // Disable send button while processing
@@ -107,14 +104,13 @@ namespace TCPServer
                 }
                 else
                 {
-                    // Send message to all Ports and get all responses
+                    // Send message to a specific Port and get the response
                     var response = await TcpService.ClientSendMessageToPortAsync(messageTextBox.Text, Convert.ToInt32(portTextBox.Text));
                     if (response != null)
                     {
                         responses.Add(response);
                     }
                 }
-
 
                 // Add new responses to the collection
                 foreach (var response in responses)
