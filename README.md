@@ -2,7 +2,7 @@
 
 ![image](https://github.com/user-attachments/assets/13763017-3958-49bc-ae4e-d775d2897bc3)
 
-This app is server and client at the same time. This is a test programm and the code will be implemented in my desktop applications to allow IPC (interprocess communication).
+This app is server and client at the same time. This is a test program. The code will be implemented in my desktop applications to allow IPC (interprocess communication).
 
 ## Usage 
 1. Open Multiple Instances on the same computer
