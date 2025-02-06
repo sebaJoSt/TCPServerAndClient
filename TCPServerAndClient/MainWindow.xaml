@@ -1,0 +1,218 @@
+﻿<Window
+    x:Class="TCPServer.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:local="clr-namespace:TCPServer"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="TCP Server and Client"
+    Width="500"
+    Height="600"
+    MinWidth="350"
+    MinHeight="500"
+    DataContext="{Binding RelativeSource={RelativeSource Self}}"
+    WindowStartupLocation="CenterScreen"
+    mc:Ignorable="d">
+
+    <Window.Resources>
+        <!--  Light Theme Colors  -->
+        <SolidColorBrush x:Key="BackgroundColor_Light" Color="#F5F5F5" />
+        <SolidColorBrush x:Key="ForegroundColor_Light" Color="Black" />
+        <SolidColorBrush x:Key="AccentColor_Light" Color="#1565C0" />
+        <SolidColorBrush x:Key="BorderColor_Light" Color="#E0E0E0" />
+        <SolidColorBrush x:Key="CardBackground_Light" Color="White" />
+        <SolidColorBrush x:Key="SubtleText_Light" Color="#666666" />
+
+        <!--  Dark Theme Colors  -->
+        <SolidColorBrush x:Key="BackgroundColor_Dark" Color="#121212" />
+        <SolidColorBrush x:Key="ForegroundColor_Dark" Color="White" />
+        <SolidColorBrush x:Key="AccentColor_Dark" Color="#2196F3" />
+        <SolidColorBrush x:Key="BorderColor_Dark" Color="#333333" />
+        <SolidColorBrush x:Key="CardBackground_Dark" Color="#1E1E1E" />
+        <SolidColorBrush x:Key="SubtleText_Dark" Color="#BBBBBB" />
+
+        <Style TargetType="Button">
+            <Setter Property="Margin" Value="0,8,0,8" />
+            <Setter Property="Padding" Value="16,8" />
+            <Setter Property="Height" Value="25" />
+            <Setter Property="Background" Value="{DynamicResource AccentColor_Light}" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#1976D2" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#0D47A1" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.6" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="TextBlock">
+            <Setter Property="Margin" Value="0,4" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundColor_Light}" />
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Margin" Value="0,4,0,8" />
+            <Setter Property="Padding" Value="8,4" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Background" Value="{DynamicResource CardBackground_Light}" />
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundColor_Light}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderColor_Light}" />
+        </Style>
+    </Window.Resources>
+
+    <Grid Background="{DynamicResource BackgroundColor_Light}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!--  Theme Toggle Button - Now in an overlay  -->
+        <Button
+            x:Name="themeToggleButton"
+            Width="32"
+            Height="32"
+            Margin="0,8,10,0"
+            Padding="4"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
+            Panel.ZIndex="1"
+            Click="ThemeToggleButton_Click">
+            <iconPacks:PackIconBootstrapIcons x:Name="themeIcon" Kind="Moon" />
+        </Button>
+
+
+        <Grid Grid.Row="0" Margin="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Border
+                Grid.Column="0"
+                Margin="0"
+                Padding="0"
+                Background="{DynamicResource BackgroundColor_Light}">
+                <StackPanel>
+                    <Button
+                        x:Name="startServerButton"
+                        Width="130"
+                        Margin="0,40,0,0"
+                        Click="StartServerButton_Click"
+                        Content="Start Server" />
+
+                    <TextBlock
+                        x:Name="serverInfo"
+                        HorizontalAlignment="Center"
+                        FontWeight="Bold" />
+
+                    <Border
+                        Margin="20,16,20,16"
+                        Padding="16"
+                        Background="{DynamicResource CardBackground_Light}"
+                        BorderBrush="{DynamicResource BorderColor_Light}"
+                        BorderThickness="1"
+                        CornerRadius="4">
+                        <StackPanel>
+                            <TextBlock FontWeight="SemiBold" Text="Message:" />
+                            <TextBox
+                                x:Name="messageTextBox"
+                                MinHeight="60"
+                                AcceptsReturn="True"
+                                TextWrapping="Wrap" />
+
+                            <TextBlock FontWeight="SemiBold" Text="Port:" />
+                            <TextBox
+                                x:Name="portTextBox"
+                                Width="120"
+                                HorizontalAlignment="Left" />
+                            <TextBlock
+                                FontStyle="Italic"
+                                Foreground="{DynamicResource SubtleText_Light}"
+                                Text="(If empty, message is sent to all servers)" />
+
+                            <Button
+                                x:Name="sendMessageButton"
+                                Width="130"
+                                Margin="0,16,0,0"
+                                Click="SendMessageButton_Click"
+                                Content="Send Message" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <DataGrid
+            x:Name="responsesDataGrid"
+            Grid.Row="1"
+            MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Grid}}"
+            Margin="20,0,20,20"
+            AlternatingRowBackground="{DynamicResource BackgroundColor_Light}"
+            AutoGenerateColumns="False"
+            Background="{DynamicResource CardBackground_Light}"
+            BorderBrush="{DynamicResource BorderColor_Light}"
+            BorderThickness="1"
+            Foreground="{DynamicResource ForegroundColor_Light}"
+            HeadersVisibility="Column"
+            HorizontalScrollBarVisibility="Auto"
+            IsReadOnly="True"
+            RowHeaderWidth="0"
+            VerticalScrollBarVisibility="Auto">
+            <DataGrid.Resources>
+                <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="{DynamicResource AccentColor_Light}" />
+                    <Setter Property="Foreground" Value="White" />
+                    <Setter Property="Padding" Value="8" />
+                    <Setter Property="FontWeight" Value="SemiBold" />
+                </Style>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="Background" Value="{DynamicResource CardBackground_Light}" />
+                </Style>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTextColumn
+                    Width="Auto"
+                    MinWidth="80"
+                    Binding="{Binding Port}"
+                    Header="Port" />
+                <DataGridTextColumn
+                    Width="Auto"
+                    MinWidth="120"
+                    Binding="{Binding Timestamp, StringFormat=HH:mm:ss.fff}"
+                    Header="Time" />
+                <DataGridTextColumn
+                    Width="*"
+                    MinWidth="200"
+                    Binding="{Binding Message}"
+                    Header="Message">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="TextWrapping" Value="Wrap" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>
