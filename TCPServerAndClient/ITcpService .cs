@@ -1,4 +1,6 @@
-﻿namespace TCPServer
+﻿using static TCPServerAndClient.TcpService;
+
+namespace TCPServerAndClient
 {
     public interface ITcpService
     {
@@ -40,18 +42,31 @@
         Task RunServerAsync(CancellationToken token);
 
         /// <summary>
-        /// Sends a message to all available TCP servers and collects their responses
+        /// Sends a message to multiple TCP servers and collects their responses.
         /// </summary>
-        /// <param name="message">The message to send</param>
-        /// <returns>List of responses from available servers</returns>
-        Task<List<TcpService.ServerResponse>> ClientSendMessageAsync(string message);
+        /// <param name="message">The message to send to the servers.</param>
+        /// <param name="portList">Optional list of specific ports to target. If null, uses the default port range.</param>
+        /// <param name="connectionTimeout">Timeout for establishing connection. Default is 100ms.</param>
+        /// <param name="responseTimeout">Timeout for waiting for server response. Default is 8000ms.</param>
+        /// <returns>A list of ServerResponse objects containing successful responses.</returns>
+        Task<List<ServerResponse>> ClientSendMessageAsync(
+            string message,
+            IEnumerable<int>? portList = null,
+            TimeSpan? connectionTimeout = null,
+            TimeSpan? responseTimeout = null);
 
         /// <summary>
-        /// Sends a message to a specific TCP server port and returns its response
+        /// Sends a message to a specific TCP server port and collects the response.
         /// </summary>
-        /// <param name="message">The message to send</param>
-        /// <param name="targetPort">The specific port to send the message to</param>
-        /// <returns>The server response if successful, null if failed or no response</returns>
-        Task<TcpService.ServerResponse?> ClientSendMessageToPortAsync(string message, int targetPort);
+        /// <param name="message">The message to send to the server.</param>
+        /// <param name="targetPort">The specific port to target.</param>
+        /// <param name="connectionTimeout">Timeout for establishing connection. Default is 100ms.</param>
+        /// <param name="responseTimeout">Timeout for waiting for server response. Default is 8000ms.</param>
+        /// <returns>A ServerResponse object if successful, null if failed.</returns>
+        Task<ServerResponse?> ClientSendMessageToPortAsync(
+            string message,
+            int targetPort,
+            TimeSpan? connectionTimeout = null,
+            TimeSpan? responseTimeout = null);
     }
 }

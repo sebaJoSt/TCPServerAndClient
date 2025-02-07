@@ -1,7 +1,7 @@
-﻿<Application x:Class="TCPServer.App"
+﻿<Application x:Class="TCPServerAndClient.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:TCPServer"
+             xmlns:local="clr-namespace:TCPServerAndClient"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
          

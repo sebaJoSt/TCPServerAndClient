@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 
-namespace TCPServer
+namespace TCPServerAndClient
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

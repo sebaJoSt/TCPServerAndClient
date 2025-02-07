@@ -1,10 +1,10 @@
 ﻿<Window
-    x:Class="TCPServer.MainWindow"
+    x:Class="TCPServerAndClient.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-    xmlns:local="clr-namespace:TCPServer"
+    xmlns:local="clr-namespace:TCPServerAndClient"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="TCP Server and Client"
     Width="500"
@@ -147,9 +147,10 @@
                                 Width="120"
                                 HorizontalAlignment="Left" />
                             <TextBlock
+                                FontSize="12"
                                 FontStyle="Italic"
                                 Foreground="{DynamicResource SubtleText_Light}"
-                                Text="(If empty, message is sent to all servers)" />
+                                Text="(If Port is empty, message is sent to all servers)" />
 
                             <Button
                                 x:Name="sendMessageButton"

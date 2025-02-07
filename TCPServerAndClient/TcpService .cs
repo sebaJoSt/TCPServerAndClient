@@ -1,17 +1,11 @@
-﻿
-
-using System;
-using System.Collections.Generic;
-using System.Buffers;
+﻿using System.Buffers;
 using System.Diagnostics;
 using System.IO.Pipelines;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace TCPServer
+namespace TCPServerAndClient
 {
     public class TcpService : ITcpService
     {
@@ -20,8 +14,8 @@ namespace TCPServer
 
         private const int BufferSize = 1024;
 
-        private readonly TimeSpan ClientConnectionTimeout = TimeSpan.FromMilliseconds(100);
-        private readonly TimeSpan ServerResponseTimeout = TimeSpan.FromMilliseconds(200);
+        private readonly TimeSpan DefaultConnectionTimeout = TimeSpan.FromMilliseconds(100);
+        private readonly TimeSpan DefaultResponseTimeout = TimeSpan.FromMilliseconds(8000);
 
         private Socket? listenSocket = null;
         public int ServerPort { get; private set; }
@@ -185,19 +179,27 @@ namespace TCPServer
             return message;
         }
 
-        public async Task<List<ServerResponse>> ClientSendMessageAsync(string message)
+        public async Task<List<ServerResponse>> ClientSendMessageAsync(
+               string message,
+               IEnumerable<int>? portList = null,
+               TimeSpan? connectionTimeout = null,
+               TimeSpan? responseTimeout = null)
         {
-            Debug.WriteLine($"Try to send message '{message}' to Ports {PortStart} - {PortEnd} ({PortEnd - PortStart + 1})");
+            var actualConnectionTimeout = connectionTimeout ?? DefaultConnectionTimeout;
+            var actualResponseTimeout = responseTimeout ?? DefaultResponseTimeout;
+
+            Debug.WriteLine(portList != null
+                ? $"Try to send message '{message}' to specified ports: {string.Join(", ", portList)}"
+                : $"Try to send message '{message}' to Ports {PortStart} - {PortEnd} ({PortEnd - PortStart + 1})");
 
             if (string.IsNullOrWhiteSpace(message))
             {
                 return [];
             }
 
-            // Clear previous responses
             ServerResponses.Clear();
 
-            var portsToTry = Enumerable.Range(PortStart, PortEnd - PortStart + 1)
+            var portsToTry = (portList ?? Enumerable.Range(PortStart, PortEnd - PortStart + 1))
                 .Where(p => p != ServerPort)
                 .ToList();
 
@@ -207,7 +209,7 @@ namespace TCPServer
                 try
                 {
                     var connectTask = clientSocket.ConnectAsync(IPAddress.Loopback, port);
-                    if (await Task.WhenAny(connectTask, Task.Delay(ClientConnectionTimeout)) != connectTask)
+                    if (await Task.WhenAny(connectTask, Task.Delay(actualConnectionTimeout)) != connectTask)
                     {
                         return null;
                     }
@@ -229,7 +231,7 @@ namespace TCPServer
                     await stream.WriteAsync(messageBytes);
 
                     var buffer = new byte[BufferSize];
-                    using var cts = new CancellationTokenSource(ServerResponseTimeout);
+                    using var cts = new CancellationTokenSource(actualResponseTimeout);
                     try
                     {
                         int bytesRead = await stream.ReadAsync(buffer, cts.Token);
@@ -258,7 +260,6 @@ namespace TCPServer
             var results = await Task.WhenAll(connectionTasks);
             var validResponses = results.Where(r => r != null).ToList();
 
-            // Store responses in the class-level collection
             ServerResponses.AddRange(validResponses!);
 
             Debug.WriteLine($"Received {validResponses.Count} responses from {results.Length} connection attempts");
@@ -270,8 +271,15 @@ namespace TCPServer
             return ServerResponses;
         }
 
-        public async Task<ServerResponse?> ClientSendMessageToPortAsync(string message, int targetPort)
+        public async Task<ServerResponse?> ClientSendMessageToPortAsync(
+            string message,
+            int targetPort,
+            TimeSpan? connectionTimeout = null,
+            TimeSpan? responseTimeout = null)
         {
+            var actualConnectionTimeout = connectionTimeout ?? DefaultConnectionTimeout;
+            var actualResponseTimeout = responseTimeout ?? DefaultResponseTimeout;
+
             if (string.IsNullOrWhiteSpace(message))
             {
                 return null;
@@ -283,7 +291,7 @@ namespace TCPServer
             try
             {
                 var connectTask = clientSocket.ConnectAsync(IPAddress.Loopback, targetPort);
-                if (await Task.WhenAny(connectTask, Task.Delay(ClientConnectionTimeout)) != connectTask)
+                if (await Task.WhenAny(connectTask, Task.Delay(actualConnectionTimeout)) != connectTask)
                 {
                     Debug.WriteLine($"Connection timeout to port {targetPort}");
                     return null;
@@ -307,7 +315,7 @@ namespace TCPServer
                 await stream.WriteAsync(messageBytes);
 
                 var buffer = new byte[BufferSize];
-                using var cts = new CancellationTokenSource(ServerResponseTimeout);
+                using var cts = new CancellationTokenSource(actualResponseTimeout);
                 try
                 {
                     int bytesRead = await stream.ReadAsync(buffer, cts.Token);
@@ -336,6 +344,5 @@ namespace TCPServer
                 }
             }
         }
-
     }
 }
